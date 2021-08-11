@@ -1,0 +1,40 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: todo
+  rabbitmq:
+    host: 192.168.1.179
+    port: 5672
+    username: guest
+    password: guest
+    publisher-returns: true
+    publisher-confirm-type: correlated
+    template:
+      mandatory: true
+    listener:
+      type: simple
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+        concurrency: 1
+        max-concurrency: 1
+        retry:
+          enabled: true
+          max-attempts: 5
+          stateless: false
+          multiplier: 1.0
+          initial-interval: 1000ms
+          max-interval: 10000ms
+        default-requeue-rejected: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.1.179:3306/todo_db?useSLL=false&serverTimezone=GMT%2B8
+    username: root
+    password: dahouqin@2020
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.dreamless.todo.dao
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
