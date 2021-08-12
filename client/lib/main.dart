@@ -57,15 +57,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _getData(int page, int size) {
-    if (_isNext) {
+    if (_isNext || page == 1) {
       Global.dio.get('todo/list/$page/$size').then((value) {
         try {
           var pageModel = PageModel.fromJson(value.data);
           this.setState(() {
             _records.addAll(pageModel.records);
+            _isNext = pageModel.pages > _nextPage;
             _nextPage = page + 1;
-            _isNext = _nextPage >= pageModel.pages;
           });
+          log('页数:$_nextPage,是否有下一页:$_isNext');
         } on Exception catch (ex) {
           log(ex.toString());
         }
@@ -97,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: RefreshIndicator(
         child: ListView.builder(
           controller: _scrollController,
+          physics: AlwaysScrollableScrollPhysics(),
           itemBuilder: (context, i) {
             if (_records.length == 0) return Divider();
             var item = _records[i];
@@ -200,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           itemCount: _records.length,
         ),
-        onRefresh: () async => {_getData(1, 10)},
+        onRefresh: () async => {await _getData(1, 10)},
         //指示器显示时距顶部位置
         color: Colors.white,
         //指示器颜色，默认ThemeData.accentColor
